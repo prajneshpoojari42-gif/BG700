@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>BG700 Control • Bagotte Robot Vacuum Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="navbar">
+    <div class="brand-container">
+      <div class="brand-icon">🤖</div>
+      <div class="brand-text">
+        <h1>BG700 Control</h1>
+        <div class="brand-subtitle">Bagotte Wi-Fi Direct • Zero-Hardware Control</div>
+      </div>
+    </div>
+
+    <div class="nav-status-group">
+      <div class="status-badge" id="headerStatusBadge">
+        <span class="status-dot online" id="headerStatusDot"></span>
+        <span id="headerStatusText">Standby / Ready</span>
+      </div>
+
+      <div class="header-battery" id="headerBattery">
+        <span>🔋</span>
+        <span id="headerBatteryVal">94%</span>
+      </div>
+
+      <div class="status-badge" id="simIndicator" style="display: none; border-color: rgba(245, 158, 11, 0.4); color: #fbbf24;">
+        <span>🎮 Demo Simulator</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="nav-tabs">
+    <button class="tab-btn active" data-tab="panel-dashboard">
+      <span>🎛️</span> Dashboard & Remote
+    </button>
+    <button class="tab-btn" data-tab="panel-map">
+      <span>🗺️</span> Room Map & Battery Optimizer
+    </button>
+    <button class="tab-btn" data-tab="panel-schedules">
+      <span>📅</span> Smart Schedules
+    </button>
+    <button class="tab-btn" data-tab="panel-settings">
+      <span>⚙️</span> Tuya Wi-Fi & Setup Guide
+    </button>
+  </nav>
+
+  <!-- Main Content Panels -->
+  <main class="main-container">
+
+    <!-- TAB 1: DASHBOARD & REMOTE -->
+    <section class="tab-panel active" id="panel-dashboard">
+      <div class="dashboard-grid">
+        
+        <!-- Left Column: Hero Status & Telemetry -->
+        <div>
+          <!-- Hero Status Card -->
+          <div class="glass-card hero-status-card">
+            <div class="vacuum-visualizer">
+              <div class="vacuum-ring" id="vacuumRing"></div>
+              <div class="vacuum-body">
+                <span class="vacuum-logo">BAGOTTE</span>
+                <span class="vacuum-icon">🧹</span>
+              </div>
+            </div>
+
+            <h2 class="hero-status-title" id="heroStatusTitle">Standby at Base Station</h2>
+            <p class="hero-status-desc" id="heroStatusDesc">Connected over home Wi-Fi • Ready for cleaning routine</p>
+
+            <div class="primary-controls">
+              <button class="btn btn-primary" id="btnPrimaryStart">
+                <span>▶</span> Start Cleaning
+              </button>
+              <button class="btn btn-warning" onclick="window.sendCommand('dock')">
+                <span>🏠</span> Return to Dock
+              </button>
+              <button class="btn btn-secondary" onclick="window.sendCommand('stop')">
+                <span>⏹</span> Stop
+              </button>
+              <button class="btn btn-secondary" id="btnLocateRobot" title="Plays audible chime on robot">
+                <span>🔔</span> Find Robot
+              </button>
+            </div>
+          </div>
+
+          <!-- Telemetry Metrics Row -->
+          <div class="metrics-row">
+            <div class="metric-card">
+              <div class="metric-icon-box green">🔋</div>
+              <div style="flex: 1;">
+                <div class="metric-label">Battery Level</div>
+                <div class="metric-value" id="metricBatteryVal">94%</div>
+                <div class="battery-bar-container">
+                  <div class="battery-bar-fill" id="batteryBarFill" style="width: 94%;"></div>
+                </div>
+                <div class="metric-sub" id="metricBatterySub" style="margin-top: 0.35rem;">Optimal Capacity</div>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-icon-box blue">⏱</div>
+              <div>
+                <div class="metric-label">Clean Duration</div>
+                <div class="metric-value" id="metricTimeVal">0 min</div>
+                <div class="metric-sub">Elapsed runtime</div>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-icon-box amber">📐</div>
+              <div>
+                <div class="metric-label">Cleaned Area</div>
+                <div class="metric-value" id="metricAreaVal">0.0 m²</div>
+                <div class="metric-sub">Surface coverage</div>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-icon-box purple">🌪</div>
+              <div>
+                <div class="metric-label">Suction Power</div>
+                <div class="metric-value" id="metricSpeedVal">🌀 Standard</div>
+                <div class="metric-sub">1600Pa Normal</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cleaning Mode Selector -->
+          <div class="glass-card" style="margin-top: 1.5rem;">
+            <div class="section-title">
+              <span>Cleaning Modes</span>
+              <span style="font-size: 0.75rem; color: var(--text-dim);">Bagotte Intelligent Gyro Navigation</span>
+            </div>
+            <div class="selector-grid">
+              <div class="selector-btn mode-btn active" data-mode="smart">
+                <span class="selector-icon">⚡</span>
+                <span class="selector-title">Smart Auto</span>
+                <span class="selector-sub">Systematic Zig-zag</span>
+              </div>
+              <div class="selector-btn mode-btn" data-mode="edge">
+                <span class="selector-icon">📐</span>
+                <span class="selector-title">Edge Clean</span>
+                <span class="selector-sub">Perimeter Walls</span>
+              </div>
+              <div class="selector-btn mode-btn" data-mode="spot">
+                <span class="selector-icon">🎯</span>
+                <span class="selector-title">Spot Clean</span>
+                <span class="selector-sub">Spiral Deep Sweep</span>
+              </div>
+              <div class="selector-btn mode-btn" data-mode="single_room">
+                <span class="selector-icon">🚪</span>
+                <span class="selector-title">Single Room</span>
+                <span class="selector-sub">Targeted Boundary</span>
+              </div>
+            </div>
+
+            <!-- Suction Speed / Battery Conservation Selector -->
+            <div class="section-title">
+              <span>Suction Power & Battery Presets</span>
+              <span style="font-size: 0.75rem; color: var(--success);">Eco mode saves up to 40% battery</span>
+            </div>
+            <div class="selector-grid">
+              <div class="selector-btn speed-btn" data-speed="gentle">
+                <span class="selector-icon">🌱</span>
+                <span class="selector-title">Eco Quiet</span>
+                <span class="selector-sub">1200Pa • +40% Battery</span>
+              </div>
+              <div class="selector-btn speed-btn active" data-speed="normal">
+                <span class="selector-icon">🌀</span>
+                <span class="selector-title">Standard</span>
+                <span class="selector-sub">1600Pa • Balanced</span>
+              </div>
+              <div class="selector-btn speed-btn" data-speed="strong">
+                <span class="selector-icon">⚡</span>
+                <span class="selector-title">Boost Strong</span>
+                <span class="selector-sub">2000Pa • For Carpets</span>
+              </div>
+              <div class="selector-btn speed-btn" data-speed="max">
+                <span class="selector-icon">🔥</span>
+                <span class="selector-title">Max Turbo</span>
+                <span class="selector-sub">2200Pa • Deep Clean</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Manual D-Pad Drive & Quick Status -->
+        <div>
+          <!-- Manual Driving Card -->
+          <div class="glass-card">
+            <div class="section-title">
+              <span>Manual Driving</span>
+              <span style="font-size: 0.75rem; color: var(--text-dim);">Wi-Fi Steer</span>
+            </div>
+
+            <div class="dpad-container">
+              <div class="dpad-grid">
+                <div class="dpad-empty"></div>
+                <button class="dpad-btn" data-dir="forward" title="Drive Forward (Up / W)">▲</button>
+                <div class="dpad-empty"></div>
+
+                <button class="dpad-btn" data-dir="turn_left" title="Turn Left (Left / A)">◀</button>
+                <button class="dpad-btn center" data-dir="stop" title="Stop (Spacebar)">STOP</button>
+                <button class="dpad-btn" data-dir="turn_right" title="Turn Right (Right / D)">▶</button>
+
+                <div class="dpad-empty"></div>
+                <button class="dpad-btn" data-dir="backward" title="Reverse (Down / S)">▼</button>
+                <div class="dpad-empty"></div>
+              </div>
+              <div class="dpad-hint">Keyboard: Arrow Keys / WASD • Space to Stop</div>
+            </div>
+          </div>
+
+          <!-- Battery Conservation Tips -->
+          <div class="glass-card" style="margin-top: 1.5rem;">
+            <div class="section-title">
+              <span>🔋 BG700 Battery Optimizer</span>
+            </div>
+            <div style="font-size: 0.825rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.75rem;">
+              <div style="display: flex; gap: 0.65rem;">
+                <span>✨</span>
+                <span><strong>Target Room Maps:</strong> Cleaning individual rooms saves 50% battery versus roaming the whole floor.</span>
+              </div>
+              <div style="display: flex; gap: 0.65rem;">
+                <span>🧹</span>
+                <span><strong>Eco on Hard Floors:</strong> Switch tiles and hardwood to Eco Quiet. Keep Boost only for high-pile carpets.</span>
+              </div>
+              <div style="display: flex; gap: 0.65rem;">
+                <span>🚫</span>
+                <span><strong>Set No-Go Zones:</strong> Cable tangles and thick rug edges cause motor stall current spikes that quickly drain the 2600mAh battery.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- TAB 2: ROOM MAP & BATTERY OPTIMIZER -->
+    <section class="tab-panel" id="panel-map">
+      <div class="map-workspace-grid">
+        
+        <!-- Left: Interactive Canvas Map -->
+        <div class="glass-card map-viewport-card">
+          <div class="map-toolbar">
+            <div class="toolbar-group">
+              <button class="btn btn-secondary btn-sm" id="btnZoomIn" title="Zoom In">➕ Zoom</button>
+              <button class="btn btn-secondary btn-sm" id="btnZoomOut" title="Zoom Out">➖ Zoom</button>
+              <button class="btn btn-secondary btn-sm" id="btnResetView" title="Reset View">🎯 Center</button>
+            </div>
+
+            <div class="toolbar-group">
+              <button class="btn btn-secondary btn-sm" id="btnAddRoomModal">
+                <span>➕</span> Add Room
+              </button>
+              <button class="btn btn-secondary btn-sm" id="btnAddNoGoModal" style="color: var(--danger);">
+                <span>🚫</span> Add No-Go Zone
+              </button>
+              <label class="btn btn-secondary btn-sm" style="cursor: pointer;" title="Upload Blueprint Blueprint/Floorplan Image">
+                <span>📁</span> Load Blueprint
+                <input type="file" id="blueprintUpload" accept="image/*" style="display: none;">
+              </label>
+            </div>
+          </div>
+
+          <div class="canvas-container">
+            <canvas id="mapCanvas"></canvas>
+            <div class="map-live-overlay">
+              <div style="font-weight: 700; color: #fff;" id="activeRoomName">Hover or Click Room</div>
+              <div style="color: var(--text-dim);" id="activeRoomDetails">Click to select for cleaning</div>
+            </div>
+          </div>
+
+          <div class="map-legend">
+            <span style="font-weight: 600;">Floor Materials:</span>
+            <div class="legend-item"><span class="legend-swatch" style="background: #10b981;"></span> Tile (Eco Suction)</div>
+            <div class="legend-item"><span class="legend-swatch" style="background: #f59e0b;"></span> Hardwood (Normal)</div>
+            <div class="legend-item"><span class="legend-swatch" style="background: #8b5cf6;"></span> Carpet (Boost Power)</div>
+            <div class="legend-item"><span class="legend-swatch" style="background: #ef4444;"></span> No-Go Hazard</div>
+            <div class="legend-item"><span class="legend-swatch" style="background: #06b6d4;"></span> Optimized Trajectory</div>
+          </div>
+        </div>
+
+        <!-- Right: Battery & Path Optimization Engine -->
+        <div class="glass-card optimization-card">
+          <div class="section-title">
+            <span>⚡ Smart Battery Optimizer</span>
+            <span class="room-tag tag-tile">Path Sequencing</span>
+          </div>
+
+          <p style="font-size: 0.825rem; color: var(--text-muted);">
+            Select rooms to clean. The algorithm computes the shortest Eulerian traversal path from the dock to minimize dead-heading and save up to 45% battery.
+          </p>
+
+          <!-- Selectable Room Checklist -->
+          <div class="room-checklist" id="roomChecklist">
+            <!-- Populated dynamically via JS -->
+          </div>
+
+          <!-- Optimization Execution -->
+          <button class="btn btn-primary" id="btnCalculateOptimization" style="width: 100%;">
+            <span>📐</span> Optimize Path & Calculate Energy
+          </button>
+
+          <!-- Efficiency Report Card -->
+          <div class="efficiency-highlight" id="efficiencyReport">
+            <div class="efficiency-badge" id="optBatterySaved">⚡ Ready to Optimize</div>
+            
+            <div class="efficiency-stat-row">
+              <span style="color: var(--text-muted);">Selected Cleaning Area:</span>
+              <span class="efficiency-value" id="optAreaVal">-- m²</span>
+            </div>
+            <div class="efficiency-stat-row">
+              <span style="color: var(--text-muted);">Est. Clean Duration:</span>
+              <span class="efficiency-value" id="optTimeVal">-- min</span>
+            </div>
+            <div class="efficiency-stat-row">
+              <span style="color: var(--text-muted);">Optimized Battery Draw:</span>
+              <span class="efficiency-value" id="optBatteryUsed" style="color: var(--success);">--%</span>
+            </div>
+            <div class="efficiency-stat-row">
+              <span style="color: var(--text-muted);">Unmapped Random Bounce:</span>
+              <span class="efficiency-value" id="optStandardBattery" style="color: var(--danger);">--%</span>
+            </div>
+
+            <div style="margin-top: 0.85rem; padding-top: 0.75rem; border-top: 1px solid rgba(255, 255, 255, 0.08);" id="optGatekeeper">
+              <span style="font-size: 0.75rem; color: var(--text-dim);">Click 'Optimize Path' above to calculate battery budget.</span>
+            </div>
+          </div>
+
+          <!-- Trigger Optimized Cleaning -->
+          <button class="btn btn-success" id="btnStartOptimizedClean" style="width: 100%;">
+            <span>🚀</span> Clean Selected with Optimized Path
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- TAB 3: SMART SCHEDULES -->
+    <section class="tab-panel" id="panel-schedules">
+      <div class="schedules-container">
+        
+        <!-- Left: Active Schedules List -->
+        <div>
+          <div class="section-title">
+            <span>Configured Schedules</span>
+            <span style="font-size: 0.75rem; color: var(--text-dim);">Automated Wi-Fi Routines</span>
+          </div>
+
+          <div id="schedulesList">
+            <!-- Populated dynamically via scheduler.js -->
+          </div>
+        </div>
+
+        <!-- Right: Create Schedule Form -->
+        <div class="glass-card">
+          <div class="section-title">
+            <span>Create New Schedule</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Schedule Routine Name</label>
+            <input type="text" class="form-input" id="schedName" placeholder="e.g. Morning Kitchen Eco-Sweep">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Trigger Time (24h)</label>
+            <input type="time" class="form-input" id="schedTime" value="09:00">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Days of Week</label>
+            <div class="day-picker">
+              <button type="button" class="day-picker-btn sched-day-btn" data-day="0">S</button>
+              <button type="button" class="day-picker-btn sched-day-btn active" data-day="1">M</button>
+              <button type="button" class="day-picker-btn sched-day-btn active" data-day="2">T</button>
+              <button type="button" class="day-picker-btn sched-day-btn active" data-day="3">W</button>
+              <button type="button" class="day-picker-btn sched-day-btn active" data-day="4">T</button>
+              <button type="button" class="day-picker-btn sched-day-btn active" data-day="5">F</button>
+              <button type="button" class="day-picker-btn sched-day-btn" data-day="6">S</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Target Area</label>
+            <select class="form-select" id="schedRoomSelect">
+              <option value="">Whole House (All Rooms)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Suction / Fan Speed</label>
+            <select class="form-select" id="schedSpeed">
+              <option value="gentle">🌱 Eco Quiet (Max Battery Conservation)</option>
+              <option value="normal" selected>🌀 Standard Clean</option>
+              <option value="strong">⚡ Boost Strong</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Cleaning Pattern Mode</label>
+            <select class="form-select" id="schedMode">
+              <option value="smart" selected>Smart Auto (Zig-zag)</option>
+              <option value="edge">Edge Only</option>
+              <option value="single_room">Single Room Mode</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Battery Safety Gatekeeper (%)</label>
+            <input type="number" class="form-input" id="schedBatteryGuard" value="40" min="20" max="90">
+            <div class="form-hint">Prevents routine from starting if robot battery is under this % to avoid getting stranded.</div>
+          </div>
+
+          <button class="btn btn-primary" id="btnCreateSchedule" style="width: 100%;">
+            <span>💾</span> Save Schedule Routine
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- TAB 4: TUYA WI-FI & SETUP GUIDE -->
+    <section class="tab-panel" id="panel-settings">
+      <div class="settings-grid">
+        
+        <!-- Left: Wi-Fi Credentials & Local Tuya Settings -->
+        <div class="glass-card">
+          <div class="section-title">
+            <span>Direct Wi-Fi / Tuya Credentials</span>
+            <span class="room-tag tag-tile">Zero Hardware</span>
+          </div>
+
+          <div class="callout-box">
+            <div class="callout-title">
+              <span>🛡️</span> Zero Microcontroller Architecture
+            </div>
+            <p style="font-size: 0.825rem; color: var(--text-muted);">
+              The Bagotte BG700 communicates natively over 2.4GHz Wi-Fi using encrypted Tuya LAN packets. No Arduino, ESP8266/ESP32, Raspberry Pi, or wiring modifications are required!
+            </p>
+          </div>
+
+          <form id="tuyaConfigForm">
+            <div class="form-group">
+              <label class="form-label">Robot IP Address</label>
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="text" class="form-input" id="cfgIp" placeholder="192.168.1.100" value="192.168.1.100">
+                <button type="button" class="btn btn-secondary btn-sm" id="btnScanNetwork" style="white-space: nowrap;">
+                  🔍 Auto-Scan Local Wi-Fi
+                </button>
+              </div>
+              <div class="form-hint">Check your home Wi-Fi router DHCP list or click Auto-Scan.</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Tuya Device ID</label>
+              <input type="text" class="form-input" id="cfgId" placeholder="e.g. bf8a2307212456abcdef">
+              <div class="form-hint">Unique 16-22 character alphanumeric identifier of your vacuum.</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Tuya Local Key</label>
+              <input type="password" class="form-input" id="cfgKey" placeholder="e.g. a7b8c9d0e1f23456">
+              <div class="form-hint">16-character AES-128 cryptographic key for direct local LAN communication.</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Protocol Version</label>
+              <select class="form-select" id="cfgVersion">
+                <option value="3.3" selected>3.3 (Standard for Bagotte BG700)</option>
+                <option value="3.1">3.1 (Legacy Tuya)</option>
+                <option value="3.4">3.4 (Modern Tuya)</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="margin-top: 1.5rem; padding: 0.85rem; background: rgba(255, 255, 255, 0.03); border-radius: var(--radius-md);">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                  <div style="font-size: 0.9rem; font-weight: 600;">Interactive Simulation Mode</div>
+                  <div style="font-size: 0.75rem; color: var(--text-dim);">Enable to test maps, schedules, and controls without physical vacuum.</div>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="cfgSimulation" checked>
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+              <span>💾</span> Save Credentials & Reconnect
+            </button>
+          </form>
+        </div>
+
+        <!-- Right: Step-by-Step Tuya Key Extraction Guide -->
+        <div class="glass-card">
+          <div class="section-title">
+            <span>How to Get Tuya Device ID & Local Key</span>
+            <span style="font-size: 0.75rem; color: var(--text-dim);">5-Minute Guide</span>
+          </div>
+
+          <div class="guide-step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <h4>Pair with Smart Life or Bagotte App</h4>
+              <p>Make sure your Bagotte BG700 is connected to your 2.4GHz Wi-Fi in the Smart Life or Tuya app.</p>
+            </div>
+          </div>
+
+          <div class="guide-step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <h4>Create a Free Tuya Developer Account</h4>
+              <p>Go to <a href="https://iot.tuya.com" target="_blank" style="color: var(--primary);">iot.tuya.com</a> and sign up for a free developer account. Go to <strong>Cloud > Development > Create Cloud Project</strong>.</p>
+            </div>
+          </div>
+
+          <div class="guide-step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <h4>Link Your Smart Life App Account</h4>
+              <p>In your Tuya Cloud project, click <strong>Cloud > Link Tuya App Account</strong>, scan the QR code with your Smart Life app.</p>
+            </div>
+          </div>
+
+          <div class="guide-step">
+            <div class="step-num">4</div>
+            <div class="step-content">
+              <h4>Run TinyTuya Wizard (Automated)</h4>
+              <p>Run this simple one-liner in your terminal to automatically extract all Device IDs and Local Keys:</p>
+              <div class="code-box">npx @tuyapi/cli wizard</div>
+              <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: 0.35rem;">
+                Or using python: <code>python -m tinytuya wizard</code>
+              </p>
+            </div>
+          </div>
+
+          <div class="callout-box" style="margin-top: 1.5rem; background: rgba(16, 185, 129, 0.08); border-color: rgba(16, 185, 129, 0.25);">
+            <div class="callout-title" style="color: var(--success);">
+              <span>🔒</span> Local Network Security
+            </div>
+            <p style="font-size: 0.825rem; color: var(--text-muted);">
+              Once configured, commands travel directly from your computer/browser over your local home Wi-Fi network without pinging external cloud servers, guaranteeing zero lag and private operation.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: Add New Room -->
+  <div class="modal-backdrop" id="addRoomModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Add Room to Floorplan</h3>
+        <button class="modal-close-btn" onclick="window.closeModal('addRoomModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Room Label</label>
+          <input type="text" class="form-input" id="newRoomName" placeholder="e.g. Dining Area">
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Width (Meters)</label>
+            <input type="number" class="form-input" id="newRoomWidth" value="4.5" step="0.5" min="1" max="25">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Length (Meters)</label>
+            <input type="number" class="form-input" id="newRoomHeight" value="3.5" step="0.5" min="1" max="25">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Floor Material & Friction Profile</label>
+          <select class="form-select" id="newRoomFloor">
+            <option value="tile">Tile / Hard Surface (Low Friction • Auto Eco Quiet)</option>
+            <option value="hardwood" selected>Hardwood / Laminate (Medium Friction • Standard)</option>
+            <option value="carpet">Carpet / Rug (High Friction • Boost Suction)</option>
+          </select>
+          <div class="form-hint">Selecting the correct floor type automatically calibrates suction speed to prevent battery waste.</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="window.closeModal('addRoomModal')">Cancel</button>
+        <button class="btn btn-primary" id="btnSaveNewRoom">Add Room</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Add No-Go Hazard Zone -->
+  <div class="modal-backdrop" id="addNoGoModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="color: var(--danger);">Add No-Go Hazard Zone</h3>
+        <button class="modal-close-btn" onclick="window.closeModal('addNoGoModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Hazard Area Name</label>
+          <input type="text" class="form-input" id="newNoGoName" placeholder="e.g. TV Wire Cluster or Pet Water Dish">
+        </div>
+        <p style="font-size: 0.825rem; color: var(--text-muted);">
+          Restricting high-hazard areas keeps the Bagotte BG700 brush roller from tangling in wires or stalling against deep shag rugs, preventing massive motor current spikes that drain the battery.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="window.closeModal('addNoGoModal')">Cancel</button>
+        <button class="btn btn-danger" id="btnSaveNewNoGo">Create Restricted Zone</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Client Scripts -->
+  <script src="js/map-engine.js"></script>
+  <script src="js/scheduler.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

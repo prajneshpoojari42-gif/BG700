@@ -1,0 +1,43 @@
+[
+  {
+    "id": "sched-1",
+    "name": "Morning Living Room Eco-Sweep",
+    "enabled": true,
+    "time": "08:30",
+    "days": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "mode": "smart",
+    "fanSpeed": "gentle",
+    "rooms": [
+      "room-living"
+    ],
+    "batteryThreshold": 40,
+    "lastRun": null
+  },
+  {
+    "id": "sched-2",
+    "name": "Weekend Whole House Deep Clean",
+    "enabled": true,
+    "time": "11:00",
+    "days": [
+      0,
+      6
+    ],
+    "mode": "smart",
+    "fanSpeed": "normal",
+    "rooms": [
+      "room-living",
+      "room-kitchen",
+      "room-bedroom",
+      "room-hallway",
+      "room-study"
+    ],
+    "batteryThreshold": 60,
+    "lastRun": null
+  }
+]

@@ -1,0 +1,21 @@
+{
+  "ip": "192.168.1.100",
+  "id": "",
+  "key": "",
+  "version": "3.3",
+  "simulationMode": true,
+  "name": "Bagotte BG700",
+  "dpsMap": {
+    "power": "1",
+    "mode": "2",
+    "direction": "3",
+    "status": "4",
+    "cleanTime": "5",
+    "cleanArea": "6",
+    "battery": "7",
+    "fault": "8",
+    "fanSpeed": "9",
+    "locate": "10",
+    "dock": "101"
+  }
+}

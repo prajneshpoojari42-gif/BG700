@@ -1,0 +1,135 @@
+[
+  {
+    "id": "default-home",
+    "name": "Home Floorplan (Ground)",
+    "isDefault": true,
+    "scaleMetersPerPixel": 0.02,
+    "dock": {
+      "x": 90,
+      "y": 340,
+      "angle": 0
+    },
+    "rooms": [
+      {
+        "id": "room-living",
+        "name": "Living Room",
+        "x": 60,
+        "y": 60,
+        "width": 320,
+        "height": 240,
+        "floorType": "hardwood",
+        "friction": "medium",
+        "color": "#3b82f6",
+        "priority": 1,
+        "recommendedSpeed": "normal",
+        "doors": [
+          {
+            "x": 380,
+            "y": 170,
+            "width": 40
+          }
+        ]
+      },
+      {
+        "id": "room-kitchen",
+        "name": "Kitchen & Dining",
+        "x": 400,
+        "y": 60,
+        "width": 250,
+        "height": 200,
+        "floorType": "tile",
+        "friction": "low",
+        "color": "#10b981",
+        "priority": 2,
+        "recommendedSpeed": "gentle",
+        "doors": [
+          {
+            "x": 400,
+            "y": 170,
+            "width": 40
+          }
+        ]
+      },
+      {
+        "id": "room-bedroom",
+        "name": "Master Bedroom",
+        "x": 60,
+        "y": 320,
+        "width": 280,
+        "height": 220,
+        "floorType": "carpet",
+        "friction": "high",
+        "color": "#8b5cf6",
+        "priority": 3,
+        "recommendedSpeed": "strong",
+        "doors": [
+          {
+            "x": 340,
+            "y": 400,
+            "width": 40
+          }
+        ]
+      },
+      {
+        "id": "room-hallway",
+        "name": "Central Corridor",
+        "x": 360,
+        "y": 280,
+        "width": 290,
+        "height": 110,
+        "floorType": "hardwood",
+        "friction": "medium",
+        "color": "#f59e0b",
+        "priority": 4,
+        "recommendedSpeed": "gentle",
+        "doors": [
+          {
+            "x": 380,
+            "y": 280,
+            "width": 40
+          }
+        ]
+      },
+      {
+        "id": "room-study",
+        "name": "Home Office",
+        "x": 360,
+        "y": 410,
+        "width": 290,
+        "height": 130,
+        "floorType": "hardwood",
+        "friction": "medium",
+        "color": "#06b6d4",
+        "priority": 5,
+        "recommendedSpeed": "gentle",
+        "doors": [
+          {
+            "x": 480,
+            "y": 410,
+            "width": 40
+          }
+        ]
+      }
+    ],
+    "noGoZones": [
+      {
+        "id": "nogo-cables",
+        "name": "TV Cable Clutter",
+        "x": 75,
+        "y": 75,
+        "width": 60,
+        "height": 45,
+        "reason": "Tangle Risk / Motor Strain"
+      },
+      {
+        "id": "nogo-pet",
+        "name": "Pet Feeding Area",
+        "x": 570,
+        "y": 200,
+        "width": 65,
+        "height": 50,
+        "reason": "Water Spill Avoidance"
+      }
+    ]
+  }
+]
